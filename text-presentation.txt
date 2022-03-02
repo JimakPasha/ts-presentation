@@ -1,4 +1,4 @@
-- Объединение, пересечение 
+- Объединение, пересечение
 - Типизация объектов
 - Разница между void, never, unknown, any
 - Тайпдеф файлы (фэйкер10, + 10.10)
@@ -6,7 +6,182 @@
 - Типизация редакс
 
 =========================================================================
-Объединение (юнион типы) // https://www.youtube.com/watch?v=6H2liQHFQWE&list=PL51FNaeWDci7CPQ-5BiqeFd6hfRWY_c6d&index=5&ab_channel=Frontend%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0SPA
+Объединение (юнион типы)
+
+Объединение (Union), это мощный механизм позволяющий создавать из множества существующих типов данных логическое условие, по которому данные могут принадлежать к одному из указанных типов. Объединение указывается с помощью оператора прямой черты |, по обе стороны которой, располагаются типы данных.
+
+Объединение или юнион типы является собственным типом  данных, но они позволяют определить переменную, которая может хранить значение двух или более типов
+
+1)
+let input: string | number = 1;
+input = 'bar'; // можно
+input = true; // нельзя
+
+2)
+let mouseEvent: 'click' | 'dbclick' | 'mouseup' | 'mousedown';
+mouseEvent = 'click';
+
+3)
+function multiplyByTwo (number: string | number): number {
+  if (typeof number === 'string') {
+      throw Error('Can"t multiply string');
+  }
+  return number * 2;
+}
+
+console.log(multiplyByTwo(5));
+
+4)
+Тут используем защиту типов in. Защита типа in действует как сужающее выражение для типов.
+interface IUser {
+    id: string;
+    name: string;
+    age: number;
+}
+interface IUser2 {
+    id: string;
+    surName: string;
+}
+
+const logUser = (user: IUser | IUser2): void => {
+    if ("name" in user) {
+        console.log(user.name);    
+    }
+    throw Error('no name');
+}
+
+5)
+interface User {
+    name: string;
+    age: number;
+}
+
+interface Dog {
+   nickname: string;
+   age: number;
+}
+
+type Common = User | Dog; // можно
+interface Common = User | Dog; // нельзя
+=========================================================================
+
+Пересечение
+
+Пересечение (Intersection), ещё один мощный механизм TypeScript, который позволяет рассматривать множество типов данных, как один. Пересечение указывается с помощью оператора амперсанда &, по обе стороны от которого указываются типы данных.
+
+Переменной, которой был указан тип пересечение A и B и С может быть присвоено значение, которое принадлежит к типам A и B и C одновременно.
+
+let name: A & B & C; // значение должно принадлежать ко всем типам одновременно
+
+interface IUser {
+    id: string;
+    name: string;
+    age: number;
+}
+interface IUser2 {
+    id: string;
+    surName: string;
+}
+
+const logUser = (user: IUser & IUser2): void => {
+        console.log(user.id);    
+}
+
+=========================================================================
+
+- Типизация объектов
+
+interface IUser {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;
+}
+
+type IUser = {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;
+}
+
+const logUser = (user: IUser): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
+
+----------------------
+
+const logUser = (user: {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;}
+    ): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
+
+----------------------------
+
+const logUser = (user: any): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
 
 =========================================================================
 Другие типы, о которых следует знать
@@ -75,7 +250,9 @@ function fn(x: string | number) {
 =========================================================================
 
 Цель файла определения типов помочь ts понять как работают сторонние js библиотеки
-Можем использовать их для npm модулей, а также для тегов скрипт
+Можем использовать их для npm модулей, а также для тегов скрипт.
+
+В конце концов, он в основном используется для определения типов.
 
 =========================================================================
 
