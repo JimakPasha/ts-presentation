@@ -297,6 +297,79 @@ const initial = {
     photo: null as Nullable<string>,
 }
 
+// а теперь потипизируем наши actions
+
+
+// можем типизировать initialState с помощью interface или выводом типов TS
+const initialState = {
+	firstName: 'Pasha',
+	lastName: 'Gladki',
+	age: null as Nullable<number>,
+    card: null as Nullable<string>,
+};
+
+type Nullable<T> = null | T;
+type StateType = typeof initialState;
+
+const reducer = (state: StateType = initialState, action: ActionType): StateType => {
+    switch(action.type) {
+        case ActionTypes.SET_AGE:
+            return {...state, age: action.payload};
+        case ActionTypes.SET_NAME:
+            return {...state, firstName: action.payload}
+        default:
+            return state;
+    }
+};
+
+enum ActionTypes {
+    SET_AGE = 'SET_AGE',
+    SET_NAME = 'SET_NAME',
+}
+
+interface ISetAgeAction {
+    type: ActionTypes.SET_AGE;
+    payload: number;
+}
+
+interface ISetNameAction {
+    type: ActionTypes.SET_NAME;
+    payload: string;
+}
+
+type ActionType = ISetAgeAction | ISetNameAction;
+
+const setAge = (age: number): ActionType => ({type: ActionTypes.SET_AGE, payload: age});
+const setName = (firstName: string): ActionType => ({type: ActionTypes.SET_NAME, payload: firstName});
+
+// алтернатива
+
+type Nullable<T> = null | T;
+
+const initialState = {
+	firstName: 'Pasha',
+	lastName: 'Gladki',
+	age: null as Nullable<number>,
+    card: null as Nullable<string>,
+};
+
+type StateType = typeof initialState;
+type ActionType = ReturnType<typeof setAge> | ReturnType<typeof setName>;
+
+const reducer = (state: StateType = initialState, action: ActionType) => {
+    switch (action.type) {
+        case "SET_AGE":
+            return {...state, age: action.payload};
+        case "SET_NAME":
+            return {...state, firstName: action.payload}
+        default:
+            return state;
+    }
+};
+
+const setAge = (age: number) => ({type: 'SET_AGE', payload: age} as const);
+const setName = (firstName: string) => ({type: 'SET_NAME', payload: firstName} as const);
+
 =========================================================================
 
 
