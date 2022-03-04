@@ -1,0 +1,418 @@
+- Объединение, пересечение
+- Типизация объектов
+- Разница между void, never, unknown, any
+- Тайпдеф файлы (фэйкер10, + 10.10)
+- Можно ли автоматизировать типизацию сложных, вложенных, длинных объектов
+- Типизация редакс
+
+=========================================================================
+Объединение (юнион типы)
+
+Объединение (Union), это мощный механизм позволяющий создавать из множества существующих типов данных логическое условие, по которому данные могут принадлежать к одному из указанных типов. Объединение указывается с помощью оператора прямой черты |, по обе стороны которой, располагаются типы данных.
+
+Объединение или юнион типы является собственным типом  данных, но они позволяют определить переменную, которая может хранить значение двух или более типов
+
+1)
+let input: string | number = 1;
+input = 'bar'; // можно
+input = true; // нельзя
+
+2)
+let mouseEvent: 'click' | 'dbclick' | 'mouseup' | 'mousedown';
+mouseEvent = 'click';
+
+3)
+function multiplyByTwo (number: string | number): number {
+  if (typeof number === 'string') {
+      throw Error('Can"t multiply string');
+  }
+  return number * 2;
+}
+
+console.log(multiplyByTwo(5));
+
+4)
+Тут используем защиту типов in. Защита типа in действует как сужающее выражение для типов.
+interface IUser {
+    id: string;
+    name: string;
+    age: number;
+}
+interface IUser2 {
+    id: string;
+    surName: string;
+}
+
+const logUser = (user: IUser | IUser2): void => {
+    if ("name" in user) {
+        console.log(user.name);    
+    }
+    throw Error('no name');
+}
+
+5)
+interface User {
+    name: string;
+    age: number;
+}
+
+interface Dog {
+   nickname: string;
+   age: number;
+}
+
+type Common = User | Dog; // можно
+interface Common = User | Dog; // нельзя
+=========================================================================
+
+Пересечение
+
+Пересечение (Intersection), ещё один мощный механизм TypeScript, который позволяет рассматривать множество типов данных, как один. Пересечение указывается с помощью оператора амперсанда &, по обе стороны от которого указываются типы данных.
+
+Переменной, которой был указан тип пересечение A и B и С может быть присвоено значение, которое принадлежит к типам A и B и C одновременно.
+
+let name: A & B & C; // значение должно принадлежать ко всем типам одновременно
+
+interface IUser {
+    id: string;
+    name: string;
+    age: number;
+}
+interface IUser2 {
+    id: string;
+    surName: string;
+}
+
+const logUser = (user: IUser & IUser2): void => {
+        console.log(user.id);    
+}
+
+=========================================================================
+
+- Типизация объектов
+
+interface IUser {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;
+}
+
+type IUser = {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;
+}
+
+const logUser = (user: IUser): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
+
+----------------------
+
+const logUser = (user: {
+    id: string;
+    firstName: string;
+    surName: string;
+    age: number;
+    address: string;
+    country: string;
+    city: string;
+    isAdmin: boolean;
+    numberCard: number;}
+    ): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
+
+----------------------------
+
+const logUser = (user: any): void => {
+    console.log(user);
+}
+
+const user = {
+    id: 'XfF2af93AdZz',
+    firstName: 'Chak',
+    surName: 'Norris',
+    age: 81,
+    address: '',
+    country: '',
+    city: 'USA',
+    isAdmin: false,
+    numberCard: 2809987293749,
+}
+
+logUser(user);
+
+=========================================================================
+Другие типы, о которых следует знать
+
+=====
+void
+Void это значение, возвращаемое функцией, которая ничего не возвращает. Если в теле функции отсутствует оператор return или после этого оператора не указано возвращаемого значения, предполагаемым типом возвращаемого значения будет void:
+
+function fn() {
+  return
+}
+
+function fn() {
+  console.log('Hello!')
+}
+
+В JS функция, которая ничего не возвращает, "неявно" возвращает undefined. Однако, в TS void и undefined - это разные вещи.
+
+=====
+any
+
+=====
+???unknown
+Тип unknown представляет любое значение. Он похож на тип any, но является более безопасным, поскольку не позволяет ничего делать с неизвестным значением
+
+function f1(a: any) {
+  a.b() // OK
+}
+
+function f2(a: unknown) {
+  a.b()
+  // Object is of type 'unknown'.
+  // Типом объекта является 'unknown'
+}
+
+Это бывает полезным для описания типа функции, поскольку таким способом мы можем описать функцию, принимающую любое значение без использования типа any в теле функции. Другими словами, мы можем описать функцию, возвращающую значение неизвестного типа:
+
+function safeParse(s: string): unknown {
+  return JSON.parse(s)
+}
+
+const obj = safeParse(someRandomString)
+
+=====
+never
+Некоторые функции никогда не возвращают значений:
+Тип never представляет значение, которого не существует. Чаще всего, это означает, что функция выбрасывает исключение или останавливает выполнение программы.
+
+function fail(msg: string): never {
+  throw new Error(msg)
+}
+
+function fn(x: string | number) {
+  if (typeof x === 'string') {
+    // ...
+  } else if (typeof x === 'number') {
+    // ...
+  } else {
+    x // типом `x` является `never`!
+  }
+}
+
+
+=========================================================================
+- Тайпдеф файлы (фэйкер10, + 10.10)
+=========================================================================
+
+Цель файла определения типов помочь ts понять как работают сторонние js библиотеки
+Можем использовать их для npm модулей, а также для тегов скрипт.
+
+В конце концов, он в основном используется для определения типов.
+
+=========================================================================
+- Можно ли автоматизировать типизацию сложных, вложенных, длинных объектов
+=========================================================================
+
+const initial = {
+    age: 27,
+    name: 'Pasha',
+    photo: null,
+    // и ещё очень много свойст
+}
+
+const reducer = (state = initial, action: any) => {
+    return state;
+}
+
+как тут не писать интерфейс для этого? как автоматизировать?
+
+const initial = {
+    age: 27,
+    name: 'Pasha',
+    photo: null,
+}
+
+type StateType = typeof initial;
+
+const reducer = (state: StateType = initial, action: any) => {
+    return state;
+}
+
+но есть загвоздка. а что с налом делать, фото у нас же может быть строкой. очень просто
+
+photo: null as string | null
+
+но предположим что нам много где нужно писать этот или null, и это надоедает. Как автоматизировать? Смотрим ниже
+
+type Nullable<T> = null | T;
+
+const initial = {
+    age: 27,
+    name: 'Pasha',
+    photo: null as Nullable<string>,
+}
+
+// а теперь потипизируем наши actions
+
+
+// можем типизировать initialState с помощью interface или выводом типов TS
+const initialState = {
+	firstName: 'Pasha',
+	lastName: 'Gladki',
+	age: null as Nullable<number>,
+    card: null as Nullable<string>,
+};
+
+type Nullable<T> = null | T;
+type StateType = typeof initialState;
+
+const reducer = (state: StateType = initialState, action: ActionType): StateType => {
+    switch(action.type) {
+        case ActionTypes.SET_AGE:
+            return {...state, age: action.payload};
+        case ActionTypes.SET_NAME:
+            return {...state, firstName: action.payload}
+        default:
+            return state;
+    }
+};
+
+enum ActionTypes {
+    SET_AGE = 'SET_AGE',
+    SET_NAME = 'SET_NAME',
+}
+
+interface ISetAgeAction {
+    type: ActionTypes.SET_AGE;
+    payload: number;
+}
+
+interface ISetNameAction {
+    type: ActionTypes.SET_NAME;
+    payload: string;
+}
+
+type ActionType = ISetAgeAction | ISetNameAction;
+
+const setAge = (age: number): ActionType => ({type: ActionTypes.SET_AGE, payload: age});
+const setName = (firstName: string): ActionType => ({type: ActionTypes.SET_NAME, payload: firstName});
+
+// алтернатива
+
+type Nullable<T> = null | T;
+
+const initialState = {
+	firstName: 'Pasha',
+	lastName: 'Gladki',
+	age: null as Nullable<number>,
+    card: null as Nullable<string>,
+};
+
+type StateType = typeof initialState;
+type ActionType = ReturnType<typeof setAge> | ReturnType<typeof setName>;
+
+const reducer = (state: StateType = initialState, action: ActionType) => {
+    switch (action.type) {
+        case "SET_AGE":
+            return {...state, age: action.payload};
+        case "SET_NAME":
+            return {...state, firstName: action.payload}
+        default:
+            return state;
+    }
+};
+
+const setAge = (age: number) => ({type: 'SET_AGE', payload: age} as const);
+const setName = (firstName: string) => ({type: 'SET_NAME', payload: firstName} as const);
+
+=========================================================================
+
+
+Вопросы:
+
+// разница между Object и object
+object представляет все не приметивные значения. object только {} 
+Object описывает функциональность описанную для всех js объектов toString, hasOwnProperty (для object они будут не доступны). Object можно = 1
+
+// отличия tuple от array
+
+// что мы можем присвоить в переменную у которой тип void?
+
+// валидно? function foo():void {
+  return
+}
+
+// как понимаешь что такое тип строкового литерала через объединение? можешь написать пример
+
+// let x1: Number = new Number(1);
+let x2: Number = 1;
+console.log(x1)
+console.log(x2)
+в чём разница будет?
+как достать из x1 значение?
+
+// чем абстратный класс отличается от интерфейса?
+(классы могут содержать какую-то дефолтную реализацию, у интерфейсов не может быть реализации методов)
+
+// для чего нужен тип Omit
+(Это новый тип, в котором можно указать свойства, которые будут исключены из исходного типа.)
+
+// для чего нужен тип Pick
+(Это новый тип, в котором можно указать свойства, которые будет добавлено к исходному типу.)
+
+// Required
+(делает все свойства типа обязательными)
+
+// для чего нужно использовтаь ключевое слово declare
+
+// Как перегрузить функцию?
+
+// Что такое «.map» файл, как и зачем его использовать?
+
+свйоство системы иметь несколько реазиаций одного интерфейса
+класс наследника имеет возможность корректировать реализацию метода класса родителя
